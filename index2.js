@@ -4,6 +4,11 @@ window.addEventListener('load', () => {
   })
   game.init()
   game.bind('keydown', function({keyCode}) {
+    if ((keyCode == 37 || keyCode == 39) && (this.stage == 1 || this.stage == 2)) {
+      console.log('move')
+      this.moveBar(keyCode == 37 ? 'left' : 'right')
+    }
+  }).bind('keyup', function({keyCode}) {
     if (keyCode == 13 && this.stage == 0) {
       console.log('init')
       this.initGame()
@@ -14,12 +19,9 @@ window.addEventListener('load', () => {
       this.start()
       return
     }
-    if ((keyCode == 37 || keyCode == 39) && (this.stage == 1 || this.stage == 2)) {
-      console.log('move')
-      this.moveBar(keyCode == 37 ? 'left' : 'right')
+    if (this.stage == 1 || this.stage == 2) {
+      console.log('stop move')
+      this.stopMoveBar()
     }
-  }).bind('keyup', function() {
-    console.log('stop move')
-    this.stopMoveBar()
   })
 })
