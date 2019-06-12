@@ -24,6 +24,7 @@ window.addEventListener('load', () => {
       if (this.stage == 3 || this.stage == 4) {
         console.log('reset')
         this.init()
+        return
       }
     }
     if (keyCode == 32 && this.stage == 1) {
