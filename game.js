@@ -63,7 +63,9 @@ class Krakout {
     this.map = bricks
     this.bricksNum = num
     this.bricks = []
+
     this.score = 0
+    this.time = 0
 
     this.tip = Array.isArray(tip) ? tip : ['暂无提示信息']
     this.tipNum = (typeof tipNum == 'number' && tipNum > 0) ? tipNum : 20
@@ -137,6 +139,7 @@ class Krakout {
 
     this.stage = 0
     this.score = 0
+    this.time = 0
 
     ele.focus()
   }
@@ -256,6 +259,7 @@ class Krakout {
   }
   start() {
     this.stage = 2
+    this.time = Date.now()
     this.renderRequestId = window.requestAnimationFrame(this.render.bind(this))
   }
   render() {
@@ -270,6 +274,7 @@ class Krakout {
     this.renderBar()
     this.renderBall()
     this.renderBrick()
+    this.renderInfo()
     if (y - radius >= height) {
       this.fail()
       window.cancelAnimationFrame(this.renderRequestId)
@@ -356,6 +361,20 @@ class Krakout {
       }
     }
   }
+  renderInfo() {
+    const { context, height, width, brickAttrs: {height: brickHeight}, map, score, time } = this
+    const interval = height / 20
+    const fontSize = parseInt(width / 20)
+    const top = map[map.length - 1][0].y + brickHeight + interval * 2
+    context.beginPath()
+    context.font = `${fontSize}px serif`
+    context.fillStyle = 'rgba(255, 230, 0, 0.7)'
+    context.textBaseline = 'top'
+    context.textAlign = 'center'
+    context.fillText(`得分：${score}`, width / 2, top + interval)
+    context.fillText(`用时：${Math.max((Date.now() - time) / 1000, 0).toFixed(2)}秒`, width / 2, top + fontSize + 2 *interval)
+    context.closePath()
+  }
   fail() {
     console.log('fail')
     this.stage = 3
@@ -368,7 +387,7 @@ class Krakout {
   }
   end() {
     this.stopMoveBar()
-    const { context, width, height } = this
+    const { context, width, height, score, time } = this
     const imageAttrs = this.stage == 3 ? this.failAttrs : this.successAttrs
     let { image, tip } = imageAttrs
     context.clearRect(0, 0, width, height)
@@ -392,6 +411,7 @@ class Krakout {
       context.drawImage(image, x, y, imgWidth, imgHeight)
     }
     tip = Array.isArray(tip) ? tip : ['游戏结束']
+    tip = [...tip, `得分：${score}   用时：${Math.max((Date.now() - time) / 1000, 0).toFixed(2)}秒`]
     const tipY = (initY - tip.length * fontSize - yInterval * (tip.length - 1)) / 2
     context.beginPath()
     context.font = `${fontSize}px serif`
