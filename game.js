@@ -205,7 +205,7 @@ class Krakout {
     this.startMoveBar(direction)
   }
   startMoveBar(direction) {
-    const { bar, barAttrs: {radius, step, width: barWidth, y: barY}, bar: {x: barX}, width, stage, ball, ballAttrs: {radius: ballRadius, xAcceleration: vxA} } = this
+    const { bar, barAttrs: {radius, step, width: barWidth, y: barY}, bar: {x: barX}, width, stage, ball, ballAttrs: {radius: ballRadius, xAcceleration: vxA}, brickAttrs: {width: brickWidth} } = this
     if (direction == 'left') {
       if (bar.x > radius) {
         if (bar.x - step < radius) {
@@ -228,19 +228,19 @@ class Krakout {
       this.render()
     } else if (stage == 2) {
       const {x, vx, y} = ball
-      if ((barX > radius) && (barX + barWidth < width - radius) && (x >= barX - radius) && (x <= barX + barWidth + radius)) {
+      if ((barX > radius) && (parseInt(barX + barWidth) < parseInt(width - radius)) && (x >= barX - radius) && (x <= barX + barWidth + radius)) {
         if (y >= barY - radius - ballRadius) {
           if (direction == 'left') {
-            ball.vx = vx - vxA
+            ball.vx = Math.max(vx - vxA, -brickWidth / 2)
           } else if (direction == 'right') {
-            ball.vx = vx + vxA
+            ball.vx = Math.min(vx + vxA, brickWidth / 2)
           }
         } else if (barY - radius < y) {
           if (direction == 'left') {
-            ball.vx = vx - vxA
+            ball.vx = Math.max(vx - vxA, -brickWidth / 2)
             ball.x = barX - radius - ballRadius
           } else if (direction == 'right') {
-            ball.vx = vx + vxA
+            ball.vx = Math.min(vx + vxA, brickWidth / 2)
             ball.x = barX + barWidth + radius + ballRadius
           }
         }
@@ -261,7 +261,7 @@ class Krakout {
   render() {
     const { context, width, height, ballAttrs: {radius}, ball: {y}, score, bricksNum } = this
     if (this.stage == 1) {
-      context.clearRect(0, y - radius, width, height - y + radius)
+      context.clearRect(0, y - radius - 1, width, height - y + radius)
       this.renderBar()
       this.initBall()
       return
@@ -333,10 +333,10 @@ class Krakout {
         if (ballX + radius >= x && ballX - radius <= x + width && ballY - radius <= y + height && ballY + radius >= y) {
           this.score += 100
           bricks[i].splice(j--, 1)
-          if (vx > 0 && ballX < x && (y + height / 2 - ballY) / (x - ballX) > -tan && ((y + height / 2 - ballY) / (x - ballX) < tan)) {
+          if (vx > 0 && (ballX - vx) < x && Math.abs((y + height / 2 - (ballY - vy)) / (x - (ballX - vx))) < tan) {
             this.ball.x = x - radius
             this.ball.vx = -vx
-          } else if (vx < 0 && ballX > x + width && (y + height / 2 - ballY) / (x + width - ballX) < tan && (y + height / 2 - ballY) / (x + width - ballX) > -tan) {
+          } else if (vx < 0 && (ballX - vx) > x + width && Math.abs((y + height / 2 - (ballY - vy)) / (x + width - (ballX - vx))) < tan) {
             this.ball.x = x + width + radius
             this.ball.vx = -vx
           } else {
