@@ -271,10 +271,12 @@ class Krakout {
     this.renderBrick()
     if (y - radius >= height) {
       this.fail()
+      window.cancelAnimationFrame(this.renderRequestId)
       return
     }
     if (score == bricksNum * 100) {
       this.success()
+      window.cancelAnimationFrame(this.renderRequestId)
       return
     }
     this.renderRequestId = window.requestAnimationFrame(this.render.bind(this))
