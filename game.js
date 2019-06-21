@@ -201,14 +201,19 @@ class Krakout {
     this.ele.addEventListener(eventType, callback.bind(this))
     return this
   }
-  moveBar(direction) {
+  moveBar(direction, num) {
+    if (num != null) {
+      this.startMoveBar(direction, num)
+      return
+    }
     if (this.barRequestId != null) {
       return
     }
     this.startMoveBar(direction)
   }
-  startMoveBar(direction) {
-    const { bar, barAttrs: {radius, step, width: barWidth, y: barY}, bar: {x: barX}, width, stage, ball, ballAttrs: {radius: ballRadius, xAcceleration: vxA}, brickAttrs: {width: brickWidth} } = this
+  startMoveBar(direction, num) {
+    let { bar, barAttrs: {radius, step, width: barWidth, y: barY}, bar: {x: barX}, width, stage, ball, ballAttrs: {radius: ballRadius, xAcceleration: vxA}, brickAttrs: {width: brickWidth} } = this
+    step = num ? num : step
     if (direction == 'left') {
       if (bar.x > radius) {
         if (bar.x - step < radius) {
@@ -249,7 +254,11 @@ class Krakout {
         }
       }
     }
-    this.barRequestId = window.requestAnimationFrame(this.startMoveBar.bind(this, direction))
+    if (num == null) {
+      this.barRequestId = window.requestAnimationFrame(() => {
+        this.startMoveBar(direction, num)
+      })
+    }
   }
   stopMoveBar() {
     if (this.barRequestId != null) {
@@ -376,12 +385,10 @@ class Krakout {
     context.closePath()
   }
   fail() {
-    console.log('fail')
     this.stage = 3
     this.end()
   }
   success() {
-    console.log('success')
     this.stage = 4
     this.end()
   }
